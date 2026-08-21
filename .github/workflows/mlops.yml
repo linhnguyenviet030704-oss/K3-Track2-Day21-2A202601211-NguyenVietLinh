@@ -54,9 +54,11 @@ jobs:
           python -c '
           import json, os
           creds = json.loads(os.environ["CLOUD_CREDENTIALS"])
+          key_id = creds["aws_access_key_id"]
+          secret_key = creds["aws_secret_access_key"]
           with open(os.environ["GITHUB_ENV"], "a") as f:
-              f.write(f"AWS_ACCESS_KEY_ID={creds[\"aws_access_key_id\"]}\n")
-              f.write(f"AWS_SECRET_ACCESS_KEY={creds[\"aws_secret_access_key\"]}\n")
+              f.write(f"AWS_ACCESS_KEY_ID={key_id}\n")
+              f.write(f"AWS_SECRET_ACCESS_KEY={secret_key}\n")
               f.write("AWS_DEFAULT_REGION=ap-southeast-2\n")
           '
         env:
@@ -78,9 +80,10 @@ jobs:
           import json, os
           with open("outputs/metrics.json") as f:
               m = json.load(f)
-          print(f"accuracy={m[\"accuracy\"]}")
+          acc = m["accuracy"]
+          print(f"accuracy={acc}")
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-              f.write(f"accuracy={m[\"accuracy\"]}\n")
+              f.write(f"accuracy={acc}\n")
           '
 
       - name: Upload model to Cloud Storage
