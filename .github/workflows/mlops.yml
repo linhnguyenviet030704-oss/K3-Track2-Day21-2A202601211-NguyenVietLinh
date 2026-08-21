@@ -53,9 +53,21 @@ jobs:
         run: |
           python -c '
           import json, os
-          creds = json.loads(os.environ["CLOUD_CREDENTIALS"])
-          key_id = creds["aws_access_key_id"]
-          secret_key = creds["aws_secret_access_key"]
+          raw_creds = os.environ.get("CLOUD_CREDENTIALS", "").strip()
+          key_id = os.environ.get("AWS_ACCESS_KEY_ID", "").strip()
+          secret_key = os.environ.get("AWS_SECRET_ACCESS_KEY", "").strip()
+
+          if raw_creds.startswith("{"):
+              try:
+                  creds = json.loads(raw_creds)
+                  key_id = creds.get("aws_access_key_id", key_id)
+                  secret_key = creds.get("aws_secret_access_key", secret_key)
+              except Exception as e:
+                  print("Warning: Failed to parse CLOUD_CREDENTIALS JSON:", e)
+
+          if not key_id or not secret_key:
+              print("Error: AWS credentials not found! Check your GitHub Secrets (CLOUD_CREDENTIALS or AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY).")
+
           with open(os.environ["GITHUB_ENV"], "a") as f:
               f.write(f"AWS_ACCESS_KEY_ID={key_id}\n")
               f.write(f"AWS_SECRET_ACCESS_KEY={secret_key}\n")
@@ -63,6 +75,8 @@ jobs:
           '
         env:
           CLOUD_CREDENTIALS: ${{ secrets.CLOUD_CREDENTIALS }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Pull data with DVC
         run: dvc pull
