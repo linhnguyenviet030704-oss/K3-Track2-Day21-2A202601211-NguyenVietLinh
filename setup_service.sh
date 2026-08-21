@@ -9,7 +9,7 @@ User=ubuntu
 WorkingDirectory=/home/ubuntu
 Environment="S3_BUCKET=lab21-046989631558-ap-southeast-2-an"
 Environment="AWS_DEFAULT_REGION=ap-southeast-2"
-ExecStart=/usr/local/bin/uvicorn src.serve:app --host 0.0.0.0 --port 8000
+ExecStart=/home/ubuntu/venv/bin/uvicorn src.serve:app --host 0.0.0.0 --port 8000
 Restart=always
 RestartSec=5
 
@@ -19,4 +19,4 @@ EOF
 
 sudo systemctl daemon-reload
 sudo systemctl enable mlops-serve
-echo "Service configured successfully!"
+echo "Service configured with ~/venv/bin/uvicorn successfully!"
